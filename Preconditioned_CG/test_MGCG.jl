@@ -33,6 +33,10 @@ function test_matrix_free_MGCG(;level=6,nu=3,ω=2/3,SBPp=2)
     ω_richardson = 0.15
     h = 1/(Nx-1)
 
+    println("################# TEST ####################")
+    @show Nx,Ny
+    @show Base.summarysize(A) Base.summarysize(b) Base.summarysize(A_lu)
+
     # Checking MGCG performance
     num_iter_steps_MGCG_matrix_free_GPU, norms_MGCG_matrix_free_GPU = matrix_free_MGCG(b_GPU,x_GPU;A_2h = A_2h_lu,maxiter=length(b_GPU),abstol=reltol,nu=nu)
     error_MGCG_matrix_free_GPU = sqrt((Array(x_GPU[:])-analy_sol)'*H_tilde*(Array(x_GPU[:])-analy_sol))
@@ -49,7 +53,7 @@ function test_matrix_free_MGCG(;level=6,nu=3,ω=2/3,SBPp=2)
     x_CPU,num_iters_CG_CPU = CG_CPU(A,b,x_CPU;abstol=reltol)
     error_CG_CPU = sqrt((x_CPU-analy_sol)'*H_tilde*(x_CPU-analy_sol))
 
-    
+   
 
     @show error_MGCG_matrix_free_GPU, num_iter_steps_MGCG_matrix_free_GPU
     @show error_MGCG_GPU, num_iters_MGCG_GPU
@@ -90,6 +94,8 @@ function test_matrix_free_MGCG(;level=6,nu=3,ω=2/3,SBPp=2)
     @show t_MGCG_CPU
     @show t_MGCG_GPU 
     @show t_matrix_free_MGCG_GPU
+
+    println()
 
 end
 
