@@ -1,4 +1,5 @@
 include("../src/diagonal_sbp.jl")
+include("../src/split_matrix_free.jl")
 using CUDA
 
 if length(ARGS) != 0

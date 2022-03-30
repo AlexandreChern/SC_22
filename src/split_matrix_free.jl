@@ -714,7 +714,7 @@ function CG_Matrix_Free_GPU_v2(x_GPU,Ap_GPU,b_reshaped_GPU,Nx,Ny;abstol=reltol) 
     return num_iter_steps, abstol, sqrt(norms[end])
 end
 
-function CG_CPU(A,b,x)
+function CG_CPU(A,b,x;abstol=sqrt(eps(real(eltype(b)))))
     r = b - A * x;
     p = r;
     rsold = r' * r
@@ -731,7 +731,7 @@ function CG_CPU(A,b,x)
         x .= x .+ alpha * p;
         r .= r .- alpha * Ap;
         rsnew = r' * r
-        if sqrt(rsnew) < sqrt(eps(real(eltype(b))))
+        if sqrt(rsnew) < abstol
               break
         end
         p = r + (rsnew / rsold) * p;

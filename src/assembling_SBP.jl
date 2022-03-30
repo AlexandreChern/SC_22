@@ -46,12 +46,12 @@ function Operators_2d(i, j, h_list_x, h_list_y; SBPp=2)
     N_x = Integer(m_list[i]);
     N_y = Integer(n_list[j]);
 
-    (D1x, HIx, H1x, r1x) = diagonal_sbp_D1(p,N_x,xc=(0,1));
-    (D2x, S0x, SNx, HI2x, H2x, r2x) = diagonal_sbp_D2(p,N_x,xc=(0,1));
+    (D1x, HIx, H1x, r1x) = diagonal_sbp_D1(SBPp,N_x,xc=(0,1));
+    (D2x, S0x, SNx, HI2x, H2x, r2x) = diagonal_sbp_D2(SBPp,N_x,xc=(0,1));
 
 
-    (D1y, HIy, H1y, r1y) = diagonal_sbp_D1(p,N_y,xc=(0,1));
-    (D2y, S0y, SNy, HI2y, H2y, r2y) = diagonal_sbp_D2(p,N_y,xc=(0,1));
+    (D1y, HIy, H1y, r1y) = diagonal_sbp_D1(SBPp,N_y,xc=(0,1));
+    (D2y, S0y, SNy, HI2y, H2y, r2y) = diagonal_sbp_D2(SBPp,N_y,xc=(0,1));
 
     BSx = SNx - S0x
     BSy = SNy - S0y

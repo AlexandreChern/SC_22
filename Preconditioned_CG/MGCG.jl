@@ -1,5 +1,6 @@
 include("../src/diagonal_sbp.jl")
 include("two_level_mg.jl")
+include("../src/split_matrix_free.jl")
 
 function matrix_free_MGCG(b_GPU,x_GPU;A_2h = A_2h_lu,maxiter=length(b),abstol=sqrt(eps(real(eltype(b)))),NUM_V_CYCLES=1,nu=3,use_galerkin=true,direct_sol=0,H_tilde=0,SBPp=2)
     (Nx,Ny) = size(b_GPU)

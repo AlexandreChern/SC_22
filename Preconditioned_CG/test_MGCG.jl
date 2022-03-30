@@ -1,10 +1,11 @@
 include("MGCG.jl")
+include("../src/assembling_SBP.jl")
 
 
 function test_matrix_free_MGCG(;level=6,nu=3,ω=2/3,SBPp=2)
-    (A,b,H_tilde,Nx,Ny,analy_sol) = Assembling_matrix(level,p=SBPp);
-    (A_2h,b_2h,H_tilde_2h,Nx_2h,Ny_2h,analy_sol_2h) = Assembling_matrix(level-1,p=SBPp);
-    (A_4h,b_4h,H_tilde_4h,Nx_4h,Ny_4h,analy_sol_4h) = Assembling_matrix(level-2,p=SBPp);
+    (A,b,H_tilde,Nx,Ny,analy_sol) = Assembling_matrix(level;SBPp=SBPp);
+    (A_2h,b_2h,H_tilde_2h,Nx_2h,Ny_2h,analy_sol_2h) = Assembling_matrix(level-1;SBPp=SBPp);
+    (A_4h,b_4h,H_tilde_4h,Nx_4h,Ny_4h,analy_sol_4h) = Assembling_matrix(level-2;SBPp=SBPp);
 
     # Forming sparse CuArrays
     A_GPU_sparse = CUDA.CUSPARSE.CuSparseMatrixCSC(A)
@@ -45,7 +46,7 @@ function test_matrix_free_MGCG(;level=6,nu=3,ω=2/3,SBPp=2)
     error_MGCG_CPU = sqrt((x_MGCG_CPU - analy_sol)'*H_tilde*(x_MGCG_CPU -analy_sol))
     num_iters_MGCG_CPU = length(norms_MGCG_CPU) - 1
 
-    num_iters_CG_CPU, norms_CG_CPU, errors_CG_CPU = CG_CPU(A,b,x_CPU;abstol=reltol)
+    x_CPU,num_iters_CG_CPU = CG_CPU(A,b,x_CPU;abstol=reltol)
     error_CG_CPU = sqrt((x_CPU-analy_sol)'*H_tilde*(x_CPU-analy_sol))
 
     
@@ -91,3 +92,13 @@ function test_matrix_free_MGCG(;level=6,nu=3,ω=2/3,SBPp=2)
     @show t_matrix_free_MGCG_GPU
 
 end
+
+
+test_matrix_free_MGCG(;level=6)
+test_matrix_free_MGCG(;level=7)
+test_matrix_free_MGCG(;level=8)
+test_matrix_free_MGCG(;level=9)
+test_matrix_free_MGCG(;level=10)
+test_matrix_free_MGCG(;level=11)
+test_matrix_free_MGCG(;level=12)
+test_matrix_free_MGCG(;level=13)
