@@ -1,4 +1,6 @@
 include("initial_guess_CG.jl")
+using IterativeSolvers
+using CUDA
 
 test_initial_guess_CG(;level=6)
 test_initial_guess_CG(;level=7)

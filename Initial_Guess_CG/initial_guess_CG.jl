@@ -55,16 +55,16 @@ function initial_guess_interpolation_three_level_CG_GPU(A_GPU_sparse,A_2h_GPU_sp
     return x, history_2h.iters,history_h.iters,history_2h.data[:resnorm],history_h.data[:resnorm]
 end
 
-function  initial_guess_interpolation_three_level_Matrix_Free_CG_GPU(A_GPU,A_2h_GPU,b_GPU_v2,b_2h_GPU_v2,b_2h,b_4h,x,Nx_2h,Nx_4h;A_2h = A_2h_lu, A_4h = A_4h_lu,abstol=abstol,maxiter=length(b))
+function  initial_guess_interpolation_three_level_Matrix_Free_CG_GPU(A_GPU,A_2h_GPU,b_GPU_v2,b_2h_GPU_v2,b_2h,b_4h,x,Nx,Nx_2h,Nx_4h;A_2h = A_2h_lu, A_4h = A_4h_lu,abstol=abstol,maxiter=length(b))
     x_4h = A_4h \ b_4h
     x_2h_interpolated  = prolongation_2d_GPU(Nx_4h) * CuArray(x_4h)
     x_2h_interpolated_reshaped = reshape(x_2h_interpolated,size(b_2h_GPU_v2))
     Ap_GPU_2h = similar(b_2h_GPU_v2)
     Ap_GPU = similar(b_GPU_v2)
-    nums_iters_2h, norms_2h =  CG_Matrix_Free_GPU_v2(x_2h_interpolated_reshaped,Ap_GPU_2h,b_2h_GPU_v2,Nx_2h,Nx_2h;abstol=sqrt(eps(real(eltype(b_GPU))))) 
+    nums_iters_2h, norms_2h =  CG_Matrix_Free_GPU_v2(x_2h_interpolated_reshaped,Ap_GPU_2h,b_2h_GPU_v2,Nx_2h,Nx_2h;abstol=sqrt(eps(real(eltype(b_GPU_v2))))) 
     x_interpolated = prolongation_2d_GPU(Nx_2h) * x_2h_interpolated_reshaped[:]
     x_interpolated_reshaped = reshape(x_interpolated,size(b_GPU_v2))
-    nums_iter, norms = CG_Matrix_Free_GPU_v2(x_interpolated_reshaped,Ap_GPU,b_GPU_v2,Nx,Nx;abstol=sqrt(eps(real(eltype(b_GPU))))) 
+    nums_iter, norms = CG_Matrix_Free_GPU_v2(x_interpolated_reshaped,Ap_GPU,b_GPU_v2,Nx,Nx;abstol=sqrt(eps(real(eltype(b_GPU_v2))))) 
     return x_interpolated_reshaped, nums_iters_2h, nums_iter, norms_2h, norms
 end
 
@@ -126,7 +126,7 @@ function test_initial_guess_CG(;level=6,nu=3,ω=2/3,SBPp=2)
     x_initial_guess_three_level_GPU,iter_initial_guess_three_level_cg_GPU_2h,iter_initial_guess_three_level_cg_GPU_h, norm_initial_guess_three_level_cg_GPU_2h,norm_initial_guess_three_level_cg_GPU_h = initial_guess_interpolation_three_level_CG_GPU(A_GPU_sparse,A_2h_GPU_sparse,b_GPU,b_2h_GPU,b_2h,b_4h,x,Nx_2h,Nx_4h;A_2h = A_2h_lu, A_4h = A_4h_lu,abstol=abstol,maxiter=length(b))
     initial_guess_three_level_cg_GPU_error = sqrt((Array(x_initial_guess_three_level_GPU) - analy_sol)'*H_tilde*(Array(x_initial_guess_three_level_GPU) - analy_sol))
 
-    x_initial_guess_three_level_Matrix_Free_GPU,iter_initial_guess_three_level_cg_Matrix_Free_GPU_2h,iter_initial_guess_three_level_cg_Matrix_Free_GPU_h, norm_initial_guess_three_level_cg_Matrix_Free_GPU_2h,norm_initial_guess_three_level_cg_Matrix_Free_GPU_h = initial_guess_interpolation_three_level_Matrix_Free_CG_GPU(A_GPU_sparse,A_2h_GPU_sparse,b_GPU_v2,b_2h_GPU_v2,b_2h,b_4h,x,Nx_2h,Nx_4h;A_2h = A_2h_lu, A_4h = A_4h_lu,abstol=abstol,maxiter=length(b))
+    x_initial_guess_three_level_Matrix_Free_GPU,iter_initial_guess_three_level_cg_Matrix_Free_GPU_2h,iter_initial_guess_three_level_cg_Matrix_Free_GPU_h, norm_initial_guess_three_level_cg_Matrix_Free_GPU_2h,norm_initial_guess_three_level_cg_Matrix_Free_GPU_h = initial_guess_interpolation_three_level_Matrix_Free_CG_GPU(A_GPU_sparse,A_2h_GPU_sparse,b_GPU_v2,b_2h_GPU_v2,b_2h,b_4h,x,Nx,Nx_2h,Nx_4h;A_2h = A_2h_lu, A_4h = A_4h_lu,abstol=abstol,maxiter=length(b))
     initial_guess_three_level_cg_Matrix_Free_GPU_error = sqrt((Array(x_initial_guess_three_level_Matrix_Free_GPU[:]) - analy_sol)'*H_tilde*(Array(x_initial_guess_three_level_Matrix_Free_GPU[:]) - analy_sol))
 
     println("############################################# START TIMING ####################################################")
@@ -150,7 +150,7 @@ function test_initial_guess_CG(;level=6,nu=3,ω=2/3,SBPp=2)
     end
 
     t_intial_guess_three_level_Matrix_Free_GPU = @elapsed for _ in 1:REPEAT
-        initial_guess_interpolation_three_level_Matrix_Free_CG_GPU(A_GPU_sparse,A_2h_GPU_sparse,b_GPU_v2,b_2h_GPU_v2,b_2h,b_4h,x,Nx_2h,Nx_4h;A_2h = A_2h_lu, A_4h = A_4h_lu,abstol=abstol,maxiter=length(b))
+        initial_guess_interpolation_three_level_Matrix_Free_CG_GPU(A_GPU_sparse,A_2h_GPU_sparse,b_GPU_v2,b_2h_GPU_v2,b_2h,b_4h,x,Nx,Nx_2h,Nx_4h;A_2h = A_2h_lu, A_4h = A_4h_lu,abstol=abstol,maxiter=length(b))
     end
 
     @show t_initial_guess_CPU, iter_initial_guess_cg_CPU
