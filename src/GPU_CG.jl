@@ -113,7 +113,7 @@ function CG_full_GPU(b_reshaped_GPU,x_GPU;abstol=sqrt(eps(real(eltype(b_reshaped
     return num_iter_steps, norms
 end
 
-function CG_Matrix_Free_GPU_v2(x_GPU,Ap_GPU,b_reshaped_GPU,Nx,Ny;abstol=reltol) # optimized performance
+function CG_Matrix_Free_GPU_v2(x_GPU,Ap_GPU,b_reshaped_GPU,Nx,Ny;abstol=reltol,maxiter=Nx*Ny) # optimized performance
     matrix_free_A_full_GPU(x_GPU,Ap_GPU)
     r_GPU = b_reshaped_GPU - Ap_GPU
     p_GPU = copy(r_GPU)
@@ -122,7 +122,7 @@ function CG_Matrix_Free_GPU_v2(x_GPU,Ap_GPU,b_reshaped_GPU,Nx,Ny;abstol=reltol) 
     num_iter_steps = 0
     # for i in 1:Nx*Ny
     norms = [sqrt(rsold_GPU)]
-    for i in 1:Nx*Ny
+    for i in 1:maxiter
         num_iter_steps += 1
         matrix_free_A_full_GPU(p_GPU,Ap_GPU)
         # alpha_GPU = rsold_GPU / (sum(p_GPU .* Ap_GPU))
