@@ -1,0 +1,4 @@
+# output from batch file on talapas
+*.batch
+*.out
+*.err

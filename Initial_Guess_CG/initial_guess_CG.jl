@@ -114,8 +114,8 @@ function test_initial_guess_CG(;level=6,nu=3,ω=2/3,SBPp=2)
     @show Base.summarysize(A) Base.summarysize(b)
 
 
-    x_initial_guess, iter_initial_guess_cg_CPU, norms_initial_guess_cg = initial_guess_interpolation_CG(A,b,b_2h,x,Nx_2h;A_2h = A_2h_lu,abstol=abstol,maxiter=length(b))
-    initial_guess_cg_error = sqrt((x_initial_guess - analy_sol)'*H_tilde*(x_initial_guess-analy_sol))
+    # x_initial_guess, iter_initial_guess_cg_CPU, norms_initial_guess_cg = initial_guess_interpolation_CG(A,b,b_2h,x,Nx_2h;A_2h = A_2h_lu,abstol=abstol,maxiter=length(b))
+    # initial_guess_cg_error = sqrt((x_initial_guess - analy_sol)'*H_tilde*(x_initial_guess-analy_sol))
 
     x_initial_guess_GPU, iter_initial_guess_cg_GPU, norms_initial_guess_cg_GPU = initial_guess_interpolation_CG_GPU(A_GPU_sparse,b_GPU_sparse,b_2h,x,Nx_2h;A_2h = A_2h_lu,abstol=abstol,maxiter=length(b))
     initial_guess_cg_GPU_error = sqrt((Array(x_initial_guess_GPU) - analy_sol)'*H_tilde*(Array(x_initial_guess_GPU)-analy_sol))
@@ -133,9 +133,9 @@ function test_initial_guess_CG(;level=6,nu=3,ω=2/3,SBPp=2)
 
     REPEAT = 2
 
-    t_initial_guess_CPU = @elapsed for _ in 1:REPEAT
-        initial_guess_interpolation_CG(A,b,b_2h,x,Nx_2h;A_2h = A_2h_lu,abstol=abstol,maxiter=length(b))
-    end
+    # t_initial_guess_CPU = @elapsed for _ in 1:REPEAT
+    #     initial_guess_interpolation_CG(A,b,b_2h,x,Nx_2h;A_2h = A_2h_lu,abstol=abstol,maxiter=length(b))
+    # end
 
     t_initial_guess_GPU = @elapsed for _ in 1:REPEAT
         initial_guess_interpolation_CG_GPU(A_GPU_sparse,b_GPU_sparse,b_2h,x,Nx_2h;A_2h = A_2h_lu,abstol=abstol,maxiter=length(b))
@@ -153,7 +153,12 @@ function test_initial_guess_CG(;level=6,nu=3,ω=2/3,SBPp=2)
         initial_guess_interpolation_three_level_Matrix_Free_CG_GPU(A_GPU_sparse,A_2h_GPU_sparse,b_GPU_v2,b_2h_GPU_v2,b_2h,b_4h,x,Nx,Nx_2h,Nx_4h;A_2h = A_2h_lu, A_4h = A_4h_lu,abstol=abstol,maxiter=length(b))
     end
 
-    @show t_initial_guess_CPU, iter_initial_guess_cg_CPU
+    t_initial_guess_GPU /= REPEAT
+    t_initial_guess_Matrix_Free_GPU /= REPEAT
+    t_initial_guess_three_level_GPU /= REPEAT
+    t_intial_guess_three_level_Matrix_Free_GPU /= REPEAT
+
+    # @show t_initial_guess_CPU, iter_initial_guess_cg_CPU
     @show t_initial_guess_GPU, iter_initial_guess_cg_GPU
     @show t_initial_guess_Matrix_Free_GPU, iter_initial_guess_cg_Matrix_Free_GPU
     @show t_initial_guess_three_level_GPU, iter_initial_guess_three_level_cg_GPU_2h, iter_initial_guess_three_level_cg_GPU_h
@@ -161,7 +166,7 @@ function test_initial_guess_CG(;level=6,nu=3,ω=2/3,SBPp=2)
 
     println()
 
-    @show initial_guess_cg_error
+    # @show initial_guess_cg_error
     @show initial_guess_cg_GPU_error
     @show initial_guess_cg_Matrix_Free_GPU_error
     @show initial_guess_three_level_cg_GPU_error
