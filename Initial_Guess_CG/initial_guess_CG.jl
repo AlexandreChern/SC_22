@@ -3,6 +3,8 @@ include("../src/assembling_SBP.jl")
 include("../src/GPU_CG.jl")
 include("../Preconditioned_CG/two_level_mg.jl")
 
+using IterativeSolvers
+
 function initial_guess_interpolation_CG(A,b,b_2h,x,Nx_2h;A_2h = A_2h_lu,abstol=abstol,maxiter=length(b))
     x_2h = A_2h \ b_2h
     x_interpolated = prolongation_2d(Nx_2h) * x_2h
@@ -57,13 +59,17 @@ end
 
 function  initial_guess_interpolation_three_level_Matrix_Free_CG_GPU(A_GPU,A_2h_GPU,b_GPU_v2,b_2h_GPU_v2,b_2h,b_4h,x,Nx,Nx_2h,Nx_4h;A_2h = A_2h_lu, A_4h = A_4h_lu,abstol=abstol,maxiter=length(b))
     x_4h = A_4h \ b_4h
-    x_2h_interpolated  = prolongation_2d_GPU(Nx_4h) * CuArray(x_4h)
-    x_2h_interpolated_reshaped = reshape(x_2h_interpolated,size(b_2h_GPU_v2))
+    # x_2h_interpolated  = prolongation_2d_GPU(Nx_4h) * CuArray(x_4h)
+    # x_2h_interpolated_reshaped = reshape(x_2h_interpolated,size(b_2h_GPU_v2))
+    x_2h_interpolated_reshaped = CuArray(zeros(Nx_2h,Nx_2h))
+    matrix_free_prolongation_2d_GPU(reshape(CuArray(x_4h),Nx_4h,Nx_4h),x_2h_interpolated_reshaped)
     Ap_GPU_2h = similar(b_2h_GPU_v2)
     Ap_GPU = similar(b_GPU_v2)
     nums_iters_2h, norms_2h =  CG_Matrix_Free_GPU_v2(x_2h_interpolated_reshaped,Ap_GPU_2h,b_2h_GPU_v2,Nx_2h,Nx_2h;abstol=sqrt(eps(real(eltype(b_GPU_v2))))) 
-    x_interpolated = prolongation_2d_GPU(Nx_2h) * x_2h_interpolated_reshaped[:]
-    x_interpolated_reshaped = reshape(x_interpolated,size(b_GPU_v2))
+    # x_interpolated = prolongation_2d_GPU(Nx_2h) * x_2h_interpolated_reshaped[:]
+    # x_interpolated_reshaped = reshape(x_interpolated,size(b_GPU_v2))
+    x_interpolated_reshaped = CuArray(zeros(Nx,Nx))
+    matrix_free_prolongation_2d_GPU(x_2h_interpolated_reshaped,x_interpolated_reshaped)
     nums_iter, norms = CG_Matrix_Free_GPU_v2(x_interpolated_reshaped,Ap_GPU,b_GPU_v2,Nx,Nx;abstol=sqrt(eps(real(eltype(b_GPU_v2))))) 
     return x_interpolated_reshaped, nums_iters_2h, nums_iter, norms_2h, norms
 end
