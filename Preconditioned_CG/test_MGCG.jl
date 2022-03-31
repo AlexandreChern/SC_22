@@ -1,4 +1,5 @@
 include("MGCG.jl")
+include("../src/GPU_CG.jl")
 include("../src/assembling_SBP.jl")
 
 
@@ -50,7 +51,7 @@ function test_matrix_free_MGCG(;level=6,nu=3,ω=2/3,SBPp=2)
     error_MGCG_CPU = sqrt((x_MGCG_CPU - analy_sol)'*H_tilde*(x_MGCG_CPU -analy_sol))
     num_iters_MGCG_CPU = length(norms_MGCG_CPU) - 1
 
-    x_CPU,num_iters_CG_CPU = CG_CPU(A,b,x_CPU;abstol=reltol)
+    num_iters_CG_CPU, norms_CPU = CG_CPU(A,b,x_CPU;abstol=reltol)
     error_CG_CPU = sqrt((x_CPU-analy_sol)'*H_tilde*(x_CPU-analy_sol))
 
    
