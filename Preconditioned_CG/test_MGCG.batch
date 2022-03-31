@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --job-name=test_cg     ### Job Name
+#SBATCH --job-name=test_MGCG     ### Job Name
 #SBATCH --partition=cisds       ### Similar to a queue in PBS
-#SBATCH --time=0-06:00:00     ### Wall clock time limit in Days-HH:MM:SS
-#SBATCH --output=test_cg_%j.out   ### file in which to store job stdout
-#SBATCH --error=test_cg_%j.err    ### file in which to store job stderr
+#SBATCH --time=0-12:00:00     ### Wall clock time limit in Days-HH:MM:SS
+#SBATCH --output=test_MGCG_%j.out   ### file in which to store job stdout
+#SBATCH --error=test_MGCG_%j.err    ### file in which to store job stderr
 #SBATCH --nodes=1             ### Node count required for the job
 #SBATCH --ntasks-per-node=1   ### Nuber of tasks to be launched per Node
 #SBATCH --gres=gpu:1          ### General REServation of gpu:number of gpus
