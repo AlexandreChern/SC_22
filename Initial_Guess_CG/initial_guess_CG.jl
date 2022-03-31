@@ -26,23 +26,6 @@ function initial_guess_interpolation_CG_GPU(A_GPU_sparse,b_GPU_sparse,b_2h,x,Nx_
 end
 
 
-function initial_guess_interpolation_CG_Matrix_Free_GPU(A_GPU,b_GPU_v2,b_2h,x,Nx_2h;Nx=Nx,Ny=Ny,A_2h = A_2h_lu,abstol=abstol,maxiter=length(b),CG_Matrix_Free_GPU_v2=CG_Matrix_Free_GPU_v2)
-    x_2h = A_2h \ b_2h
-    x_interpolated = prolongation_2d_GPU(Nx_2h) * CuArray(x_2h)
-    # x_interpolated = reverse(x_interpolated)
-    # x_interpolated_reshaped = reshape(x_interpolated,size(b_GPU))
-    x_interpolated_reshaped = reshape(x_interpolated,size(b_GPU_v2))
-    Ap_GPU = similar(b_GPU_v2)
-
-    nums_CG_Matrix_Free_GPU = 0
-    norms = [0]
-
-    nums_CG_Matrix_Free_GPU, norms =  CG_Matrix_Free_GPU_v2(x_interpolated_reshaped,Ap_GPU,b_GPU_v2,Nx,Nx;abstol=sqrt(eps(real(eltype(b_GPU_v2)))),maxiter=1000) 
-    x = x_interpolated_reshaped[:]
-
-    return x, nums_CG_Matrix_Free_GPU, norms[end]
-end
-
 # function MG_interpolation_CG_Matrix_Free_GPU(A_GPU,b_GPU,b_2h,x,Nx_2h;Nx=Nx,Ny=Ny,A_2h = A_2h_lu,abstol=abstol,maxiter=length(b))
 #     x_MG_initial_guess_reverse = Two_level_multigrid(A,b,Nx,Ny,A_2h;nu=100,NUM_V_CYCLES=1,SBPp=2)[1]
 #     x_MG_initial_guess_reverse_reshaped = reshape(x_MG_initial_guess_reverse,Nx,Ny)
@@ -62,6 +45,26 @@ function initial_guess_interpolation_three_level_CG_GPU(A_GPU_sparse,A_2h_GPU_sp
     x,history_h = cg!(x_interpolated,A_GPU_sparse,b_GPU;abstol=abstol,log=true)
     return x, history_2h.iters,history_h.iters,history_2h.data[:resnorm],history_h.data[:resnorm]
 end
+
+
+function initial_guess_interpolation_CG_Matrix_Free_GPU(A_GPU,b_GPU_v2,b_2h,x,Nx_2h;Nx=Nx,Ny=Ny,A_2h = A_2h_lu,abstol=abstol,maxiter=length(b),CG_Matrix_Free_GPU_v2=CG_Matrix_Free_GPU_v2)
+    x_2h = A_2h \ b_2h
+    x_interpolated = prolongation_2d_GPU(Nx_2h) * CuArray(x_2h)
+    # x_interpolated = reverse(x_interpolated)
+    # x_interpolated_reshaped = reshape(x_interpolated,size(b_GPU))
+    x_interpolated_reshaped = reshape(x_interpolated,size(b_GPU_v2))
+    Ap_GPU = similar(b_GPU_v2)
+
+    nums_CG_Matrix_Free_GPU = 0
+    norms = [0]
+
+    nums_CG_Matrix_Free_GPU, norms =  CG_Matrix_Free_GPU_v2(x_interpolated_reshaped,Ap_GPU,b_GPU_v2,Nx,Nx;abstol=sqrt(eps(real(eltype(b_GPU_v2)))),maxiter=1000) 
+    x = x_interpolated_reshaped[:]
+
+    return x, nums_CG_Matrix_Free_GPU, norms[end]
+end
+
+
 
 function  initial_guess_interpolation_three_level_Matrix_Free_CG_GPU(A_GPU,A_2h_GPU,b_GPU_v2,b_2h_GPU_v2,b_2h,b_4h,x,Nx,Nx_2h,Nx_4h;A_2h = A_2h_lu, A_4h = A_4h_lu,abstol=abstol,maxiter=length(b),CG_Matrix_Free_GPU_v2=CG_Matrix_Free_GPU_v2)
     x_4h = A_4h \ b_4h
